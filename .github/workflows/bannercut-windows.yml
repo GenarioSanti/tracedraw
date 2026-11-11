@@ -1,0 +1,55 @@
+name: BannerCut Windows installer
+on:
+  workflow_dispatch:
+  push:
+    branches: [bannercut-installer]
+permissions:
+  contents: write
+jobs:
+  installer:
+    runs-on: windows-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@1.97.0
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: bannercut-windows
+      - name: Check icon formatting
+        run: rustfmt --check --edition 2021 apps/tracedraw/src/ui/macro_icons.rs
+      - name: Test workspace
+        run: cargo test --workspace --locked
+      - name: Check workspace
+        run: cargo clippy --workspace --locked
+      - name: Build desktop
+        run: cargo build --release --locked -p tracedraw
+      - name: Build and test integration
+        shell: pwsh
+        run: |
+          & ./integrations/bannercut/build.ps1
+          $p = Start-Process -FilePath ./integrations/bannercut/BannerCutIntegrado.exe -ArgumentList '--selftest integration-tests' -Wait -PassThru
+          if ($p.ExitCode -ne 0) { throw 'Integration tests failed' }
+          Get-Content integration-tests/RESULTADO.txt
+      - name: Build installer
+        shell: pwsh
+        run: |
+          $compiler = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (!(Test-Path $compiler)) { choco install innosetup --no-progress -y }
+          & $compiler packaging/windows/bannercut.iss
+          if ($LASTEXITCODE -ne 0) { throw 'Installer build failed' }
+          (Get-FileHash dist/TraceDraw-BannerCut-Setup.exe -Algorithm SHA256).Hash | Set-Content dist/SHA256.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TraceDraw-BannerCut-Installer
+          path: dist/*
+          if-no-files-found: error
+      - name: Publish preview installer
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = "bannercut-rc7-${{ github.run_number }}"
+          gh release create $tag dist/TraceDraw-BannerCut-Setup.exe dist/SHA256.txt --target ${{ github.sha }} --prerelease --title "TraceDraw com BannerCut RC7" --notes "Instalador Windows 64 bits com os quatro icones e a integracao RC7. Requer CameraCut instalado. Testes automaticos aprovados; validacao visual e corte fisico ainda pendentes."
+          if ($LASTEXITCODE -ne 0) { throw 'Release publication failed' }

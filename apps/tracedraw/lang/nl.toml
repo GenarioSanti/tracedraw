@@ -8353,3 +8353,9 @@ docker.distribute_gap_slider_tip = "Sleep om de afstand te wijzigen: de selectie
 context.edit_shadow = "Schaduw bewerken" # mt
 docker.shadow_summary = "{kind}, dekking {opacity} %" # mt
 docker.edit_shadow_tip = "Het gereedschap Slagschaduw op dit object: sleep de grepen van de schaduw of wijzig de instellingen op de eigenschappenbalk." # mt
+
+# BannerCut macro toolbar tooltips
+toolbar.bannercut_send = "Send to CameraCut"
+toolbar.bannercut_marks = "Create registration marks"
+toolbar.bannercut_settings = "Configure BannerCut"
+toolbar.bannercut_boundary = "Create boundary without marks"

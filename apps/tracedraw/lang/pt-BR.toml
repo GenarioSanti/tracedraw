@@ -8353,3 +8353,9 @@ docker.distribute_gap_slider_tip = "Arraste para mudar o espaçamento: a seleç�
 context.edit_shadow = "Editar sombra" # mt
 docker.shadow_summary = "{kind}, opacidade {opacity} %" # mt
 docker.edit_shadow_tip = "A ferramenta Sombra projetada neste objeto: arraste as alças da sombra ou altere as configurações na barra de propriedades." # mt
+
+# BannerCut macro toolbar tooltips
+toolbar.bannercut_send = "Enviar ao CameraCut"
+toolbar.bannercut_marks = "Gerar marcas de registro"
+toolbar.bannercut_settings = "Configurar BannerCut"
+toolbar.bannercut_boundary = "Criar limite sem as marcas"

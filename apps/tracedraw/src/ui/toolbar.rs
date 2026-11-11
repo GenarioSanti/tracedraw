@@ -804,7 +804,7 @@ fn tool_item(app: &mut App, ui: &mut Ui, t: Tool) {
 /// A menu command as a toolbar button: its menu picture, or its name
 /// when it has none; a click runs it as its menu item would.
 fn command_item(app: &mut App, ui: &mut Ui, key: &str) {
-    let name = tr(key);
+    let name = tr(super::macro_icons::for_key(key).map_or(key, |icon| icon.label_key()));
     let font = egui::FontId::proportional(13.0);
     let picture = crate::ui::menus::has_menu_picture(key);
     let width = if picture {

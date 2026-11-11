@@ -8353,3 +8353,9 @@ docker.distribute_gap_slider_tip = "Drag to change the spacing: the selection is
 context.edit_shadow = "Edit Shadow"
 docker.shadow_summary = "{kind}, opacity {opacity} %"
 docker.edit_shadow_tip = "The Drop Shadow tool on this object: drag the shadow's handles, or change its settings on the property bar."
+
+# BannerCut macro toolbar tooltips
+toolbar.bannercut_send = "Send to CameraCut"
+toolbar.bannercut_marks = "Create registration marks"
+toolbar.bannercut_settings = "Configure BannerCut"
+toolbar.bannercut_boundary = "Create boundary without marks"

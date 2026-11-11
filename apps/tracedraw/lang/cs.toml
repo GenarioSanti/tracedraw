@@ -8353,3 +8353,9 @@ docker.distribute_gap_slider_tip = "Tažením měníte rozestup: výběr se při
 context.edit_shadow = "Upravit stín" # mt
 docker.shadow_summary = "{kind}, krytí {opacity} %" # mt
 docker.edit_shadow_tip = "Nástroj Vržený stín na tomto objektu: táhněte úchyty stínu nebo změňte jeho nastavení na panelu vlastností." # mt
+
+# BannerCut macro toolbar tooltips
+toolbar.bannercut_send = "Send to CameraCut"
+toolbar.bannercut_marks = "Create registration marks"
+toolbar.bannercut_settings = "Configure BannerCut"
+toolbar.bannercut_boundary = "Create boundary without marks"

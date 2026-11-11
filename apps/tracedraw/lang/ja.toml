@@ -8353,3 +8353,9 @@ docker.distribute_gap_slider_tip = "ドラッグして間隔を変更すると�
 context.edit_shadow = "影を編集" # mt
 docker.shadow_summary = "{kind}、不透明度 {opacity} %" # mt
 docker.edit_shadow_tip = "このオブジェクトにドロップシャドウツールを使います。影のハンドルをドラッグするか、プロパティバーで設定を変更します。" # mt
+
+# BannerCut macro toolbar tooltips
+toolbar.bannercut_send = "Send to CameraCut"
+toolbar.bannercut_marks = "Create registration marks"
+toolbar.bannercut_settings = "Configure BannerCut"
+toolbar.bannercut_boundary = "Create boundary without marks"

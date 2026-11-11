@@ -8353,3 +8353,9 @@ docker.distribute_gap_slider_tip = "拖曳以變更間距:拖曳時選取範圍�
 context.edit_shadow = "編輯陰影" # mt
 docker.shadow_summary = "{kind}，不透明度 {opacity} %" # mt
 docker.edit_shadow_tip = "對此物件使用陰影工具：拖曳陰影的控制點，或在屬性列中變更其設定。" # mt
+
+# BannerCut macro toolbar tooltips
+toolbar.bannercut_send = "Send to CameraCut"
+toolbar.bannercut_marks = "Create registration marks"
+toolbar.bannercut_settings = "Configure BannerCut"
+toolbar.bannercut_boundary = "Create boundary without marks"

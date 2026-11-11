@@ -8353,3 +8353,9 @@ docker.distribute_gap_slider_tip = "Ziehen ändert den Abstand: Die Auswahl wird
 context.edit_shadow = "Schatten bearbeiten" # mt
 docker.shadow_summary = "{kind}, Deckkraft {opacity} %" # mt
 docker.edit_shadow_tip = "Das Schlagschatten-Werkzeug für dieses Objekt: Ziehen Sie die Griffe des Schattens oder ändern Sie seine Einstellungen in der Eigenschaftsleiste." # mt
+
+# BannerCut macro toolbar tooltips
+toolbar.bannercut_send = "Send to CameraCut"
+toolbar.bannercut_marks = "Create registration marks"
+toolbar.bannercut_settings = "Configure BannerCut"
+toolbar.bannercut_boundary = "Create boundary without marks"

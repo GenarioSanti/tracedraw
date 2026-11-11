@@ -1,0 +1,91 @@
+RC7 - CORRECAO DE ENVIO COM IMAGENS GRANDES
+A leitura descarta os pixels das imagens da pagina, sem descartar os contornos.
+Limites: pagina exportada 128 MB; atributos de geometria 16 MB.
+Selecione apenas contornos e marcas. Imagens selecionadas continuam bloqueadas.
+Se os botoes nao responderem, abra Iniciar integracao no menu Iniciar.
+No icone junto ao relogio, Ver estado mostra a atividade e Abrir registro mostra os erros.
+Depois de reiniciar o auxiliar, clique novamente em Enviar: pedidos antigos nao sao repetidos.
+Esta atualizacao ainda usa botoes de texto na versao da Microsoft Store.
+Os icones dependem da nova compilacao do fork, entregue separadamente.
+
+RC6 - RECUPERACAO DO AUXILIAR
+O auxiliar normal permanece de reserva durante a sessao autorizada.
+Se ela encerrar inesperadamente, ele retoma em ate 30 segundos.
+Erros e cancelamentos aparecem como notificacao perto do relogio e no log;
+nao deixam uma mensagem modal bloqueando novos cliques.
+Encerrar integracao comunica a parada aos dois auxiliares RC6.
+Para atualizar de RC5, encerre a integracao anterior antes de instalar.
+Se Enviar/Configurar nao responderem, use Iniciar integracao no menu Iniciar.
+O arquivo de envio atual do usuario foi convertido com sucesso nesta revisao.
+A integracao na ferramenta LIMITE NATIVA do TraceDraw continua pendente.
+O comando BannerCut.Limite existente foi mantido.
+
+NOVO: BannerCut.Limite
+Selecione a arte com as marcas e clique em BannerCut.Limite.
+O novo contorno exclui objetos nomeados RegMark ou BC_MARK_, inclusive
+dentro de grupos. As marcas e a arte originais sao preservadas.
+O resultado fica selecionado e sobreposto a arte; mova-o para conferir.
+O botao Criar limite nativo do TraceDraw NAO foi modificado.
+Este comando usa uniao de contornos fechados; nao e vetorizacao de JPEG.
+Nao promete silhueta de imagem ou remocao de furos internos.
+Texto, efeitos e imagens precisam de validacao especifica.
+
+BANNERCUT PARA TRACEDRAW - 1.0 RC6
+
+NOVIDADES
+- A primeira acao Enviar ou Configurar pede autorizacao do Windows para
+  iniciar uma sessao do auxiliar com permissao. A sessao fica ativa ate
+  Encerrar integracao ou sair do Windows. Nao desativa o UAC nem instala
+  tarefa administrativa permanente. Use a mesma conta do Windows.
+- Configuracoes abrem depois da autorizacao. A mensagem que obrigava a
+  preencher tudo de novo foi removida. Falhas de gravacao mantem a janela
+  e os valores abertos.
+- Portugues (Brasil) e English na janela de configuracoes. O idioma do
+  programa CameraCut nao e alterado nem recebe traducao ficticia.
+- A janela principal pequena do CameraCut e minimizada apos o envio.
+  A janela de corte permanece sob controle do CameraCut. Se minimizar
+  recolhe para a bandeja ou barra de tarefas depende do proprio CameraCut.
+- Mantidas as correcoes de espessura e dimensoes das marcas da RC3.
+
+ATUALIZAR
+1. Salve os desenhos e feche TraceDraw.
+2. No icone BannerCut perto do relogio, escolha Encerrar integracao.
+3. Execute BannerCutIntegrado.exe desta pasta e clique Instalar integracao.
+4. Reabra TraceDraw. A primeira acao Enviar ou Configurar pode pedir UAC.
+5. Ao encerrar o auxiliar autorizado, para usa-lo novamente execute o atalho
+   TraceDraw com BannerCut. Uma nova sessao pode exigir nova autorizacao.
+
+CONFIGURAR
+Desmarque Cortar contornos e Corte tracejado, se desejado, e clique Salvar.
+Feche CameraCut antes de salvar: nao ha confirmacao de que ele releia seu
+arquivo de configuracao enquanto aberto, e ele pode sobrescrever os valores.
+Essa verificacao continua ativa. A traducao muda somente os nomes exibidos;
+os valores gravados usam as chaves originais de CameraCut.cfg, com backup.
+
+USAR
+Selecione os objetos e use BannerCut.Marcas. Ajuste as marcas se necessario.
+Para enviar, selecione um conjunto de marcas e os contornos vetoriais.
+Nao inclua o JPEG na selecao enviada para cortar: imagem e contorno de corte
+sao objetos diferentes. Confira a previa no Camera Cutter antes do corte.
+A integracao entrega o arquivo; o comando fisico de corte continua no CameraCut.
+
+PENDENCIAS
+- Icones nativos no lugar dos nomes da barra.
+- Validacao do novo comando BannerCut.Limite em formas diversas.
+  O comando nativo do TraceDraw nao foi alterado por este pacote.
+- Validacao no Windows do usuario da sessao autorizada, configuracoes e
+  comportamento das janelas CameraCut/Camera Cutter. Testes automaticos
+  nao equivalem a teste completo da interface e da plotter.
+- Sem QR Code e SubMark. Grupos/efeitos/transformacoes nao suportados no
+  SVG sao recusados. Converta textos e formas especiais em curvas.
+
+INSTALACAO E SUPORTE
+Arquivos por usuario: %LOCALAPPDATA%\SSPrint\BannerCutTraceDraw
+Log: integracao.log nessa pasta.
+Macros e preferencias do TraceDraw recebem backup antes da atualizacao.
+Nao inclui CameraCut, drivers ou macros comerciais de terceiros.
+Para desativar, feche TraceDraw e use Desativar integracao no menu Iniciar;
+encerre tambem o auxiliar pelo icone perto do relogio.
+O codigo esta em src; build.ps1 compila com .NET Framework do Windows.
+Integracao independente, nao homologada pelos fabricantes dos programas.
+Referencia publica do formato de macros: https://github.com/tracedraw/tracedraw

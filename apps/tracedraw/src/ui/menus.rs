@@ -573,7 +573,10 @@ pub(crate) fn draw_menu_picture(
     key: &str,
     color: egui::Color32,
 ) -> bool {
-    if let Some(a) = menu_icon(key) {
+    if let Some(icon) = super::macro_icons::for_key(key) {
+        super::macro_icons::draw(painter, r, icon, color);
+        true
+    } else if let Some(a) = menu_icon(key) {
         crate::ui::icons::draw_action(painter, r, a, color);
         true
     } else if let Some(p) = menu_pic(key) {
@@ -589,7 +592,8 @@ pub(crate) fn draw_menu_picture(
 
 /// Whether the menu item `key` has a picture to draw.
 pub(crate) fn has_menu_picture(key: &str) -> bool {
-    menu_icon(key).is_some()
+    super::macro_icons::for_key(key).is_some()
+        || menu_icon(key).is_some()
         || menu_pic(key).is_some()
         || crate::ui::menu_glyphs::for_key(key).is_some()
 }

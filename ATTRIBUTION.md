@@ -39,3 +39,9 @@ Not bundled on purpose: licensed spot colour libraries, third-party
 clipart, templates, fonts other than the ones above, and colour profiles
 other than the ones a user loads. Test files that belong to someone else
 are never committed.
+
+## BannerCut macro toolbar drawings
+
+The vector geometry in apps/tracedraw/src/ui/macro_icons.rs was created for this fork. It uses no third-party icon assets and is provided under this repository's MIT OR Apache-2.0 terms.
+
+The independent BannerCut Windows integration helper in integrations/bannercut was developed for this fork and is distributed under the repository's MIT OR Apache-2.0 license. It does not redistribute CameraCut or third-party drivers.

@@ -8353,3 +8353,9 @@ docker.distribute_gap_slider_tip = "দূরত্ব বদলাতে টা
 context.edit_shadow = "ছায়া সম্পাদনা" # mt
 docker.shadow_summary = "{kind}, অস্বচ্ছতা {opacity} %" # mt
 docker.edit_shadow_tip = "এই বস্তুর উপর ড্রপ শ্যাডো টুল: ছায়ার হ্যান্ডেলগুলো টানুন, অথবা প্রপার্টি বারে এর সেটিংস বদলান।" # mt
+
+# BannerCut macro toolbar tooltips
+toolbar.bannercut_send = "Send to CameraCut"
+toolbar.bannercut_marks = "Create registration marks"
+toolbar.bannercut_settings = "Configure BannerCut"
+toolbar.bannercut_boundary = "Create boundary without marks"

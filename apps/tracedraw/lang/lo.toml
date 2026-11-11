@@ -8353,3 +8353,9 @@ docker.distribute_gap_slider_tip = "ລາກເພື່ອປ່ຽນໄລ�
 context.edit_shadow = "ແກ້ໄຂເງົາ" # mt
 docker.shadow_summary = "{kind}, ຄວາມທຶບ {opacity} %" # mt
 docker.edit_shadow_tip = "ເຄື່ອງມືເງົາຕົກໃສ່ວັດຖຸນີ້: ລາກຈັບຂອງເງົາ ຫຼື ປ່ຽນການຕັ້ງຄ່າຂອງມັນໃນແຖບຄຸນສົມບັດ." # mt
+
+# BannerCut macro toolbar tooltips
+toolbar.bannercut_send = "Send to CameraCut"
+toolbar.bannercut_marks = "Create registration marks"
+toolbar.bannercut_settings = "Configure BannerCut"
+toolbar.bannercut_boundary = "Create boundary without marks"

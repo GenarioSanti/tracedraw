@@ -8353,3 +8353,9 @@ docker.distribute_gap_slider_tip = "दूरी बदलने के लि�
 context.edit_shadow = "छाया संपादित करें" # mt
 docker.shadow_summary = "{kind}, अपारदर्शिता {opacity} %" # mt
 docker.edit_shadow_tip = "इस ऑब्जेक्ट पर ड्रॉप शैडो टूल: छाया के हैंडल खींचें, या प्रॉपर्टी बार पर उसकी सेटिंग बदलें।" # mt
+
+# BannerCut macro toolbar tooltips
+toolbar.bannercut_send = "Send to CameraCut"
+toolbar.bannercut_marks = "Create registration marks"
+toolbar.bannercut_settings = "Configure BannerCut"
+toolbar.bannercut_boundary = "Create boundary without marks"

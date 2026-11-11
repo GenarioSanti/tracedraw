@@ -3,6 +3,7 @@
 //! document tabs, rulers and canvas in the middle, navigator and colour
 //! palette under the canvas, status bar at the bottom.
 
+pub(crate) mod macro_icons;
 pub mod about;
 pub mod ai_bar;
 pub mod ai_docker;
