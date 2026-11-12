@@ -264,8 +264,9 @@ mod winit_file_drop;
 #[cfg(all(test, not(target_arch = "wasm32")))]
 #[path = "../../../vendor/winit/src/alt_shortcuts.rs"]
 mod winit_alt_shortcuts;
-// A graphics tablet's pen on Wayland, of the same copy (#1841).
-#[cfg(all(test, unix, not(target_arch = "wasm32")))]
+// The platform-independent tablet event translator is also exercised by
+// pick/drag tests on Windows; it does not import the Wayland backend.
+#[cfg(all(test, not(target_arch = "wasm32")))]
 #[allow(dead_code)]
 #[path = "../../../vendor/winit/src/tablet_tool.rs"]
 mod winit_tablet_tool;
