@@ -75,8 +75,8 @@ Public Sub Enviar()
     Dim marcas As Long
     Set sr = ActiveSelectionRange
     n = sr.Count
-    If n < 2 Then
-        MsgBox "Selecione os contornos e as marcas juntos.", vbExclamation, "BannerCut"
+    If n = 0 Then
+        MsgBox "Selecione pelo menos um contorno para cortar.", vbExclamation, "BannerCut"
         Exit Sub
     End If
     ReDim nomes(1 To n)
@@ -84,7 +84,15 @@ Public Sub Enviar()
         nomes(i) = sr.Item(i).Name
         If nomes(i) = "RegMark X00 Y00" Then marcas = marcas + 1
     Next i
-    If marcas <> 1 Then
+    If marcas = 0 Then
+        For Each sh In ActivePage.Shapes
+            If InStr(sh.Name, "RegMark") > 0 Then
+                MsgBox "A pagina tem marcas. Selecione as marcas com a arte ou use uma pagina sem marcas para corte direto.", vbExclamation, "BannerCut"
+                Exit Sub
+            End If
+        Next sh
+    End If
+    If marcas > 1 Then
         MsgBox "Selecione exatamente um conjunto RegMark X00 Y00.", vbExclamation, "BannerCut"
         Exit Sub
     End If

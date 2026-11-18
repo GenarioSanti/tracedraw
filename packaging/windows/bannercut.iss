@@ -1,7 +1,7 @@
 [Setup]
 AppId={{DA75436F-83C3-4FE1-8D3B-EA5275602357}
 AppName=TraceDraw com BannerCut
-AppVersion=0.44.0-bannercut-rc8
+AppVersion=0.44.0-bannercut-rc10
 AppPublisher=SS Print
 AppPublisherURL=https://github.com/GenarioSanti/tracedraw
 DefaultDirName={localappdata}\Programs\TraceDraw-BannerCut
@@ -28,7 +28,7 @@ Source: "..\..\LICENSE-MIT"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\LICENSE-APACHE"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\ATTRIBUTION.md"; DestDir: "{app}"; Flags: ignoreversion
 [Icons]
-Name: "{group}\TraceDraw com BannerCut"; Filename: "{app}\tracedraw.exe"
+Name: "{group}\TraceDraw com BannerCut"; Filename: "{app}\integration\BannerCutIntegrado.exe"; Parameters: "--start"
 Name: "{group}\Configurar integracao"; Filename: "{app}\integration\BannerCutIntegrado.exe"; Parameters: "--install-bundled ""{app}\tracedraw.exe"""
 Name: "{group}\Desinstalar TraceDraw com BannerCut"; Filename: "{uninstallexe}"
 [Run]

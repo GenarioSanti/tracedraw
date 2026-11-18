@@ -20,6 +20,12 @@ static class App {
  public static string Camera(){string f=Path.Combine(Home,"camera-path.txt");if(File.Exists(f)){string s=File.ReadAllText(f).Trim();if(File.Exists(s))return s;}return @"C:\Program Files\CameraCut\CameraCut.exe";}
  public static bool Elevated(){using(var id=WindowsIdentity.GetCurrent())return new WindowsPrincipal(id).IsInRole(WindowsBuiltInRole.Administrator);}
  public static void Elevate(string argument){Process.Start(new ProcessStartInfo(Exe,argument){UseShellExecute=true,Verb="runas",WorkingDirectory=Path.GetDirectoryName(Exe)});}
+ public static bool DirectEnabled(){
+  string cfg=Path.Combine(Path.GetDirectoryName(Camera()),"CameraCut.cfg");
+  if(!File.Exists(cfg))return false;
+  var ini=new IniFile(cfg);
+  return ini.Get("SETUP","CutOutlineEn","")=="0" && ini.Get("SETUP","DashedEn","")=="0";
+ }
  public static void Config(){
   if(!Elevated()){Session("config");return;}
   string camera=Camera();if(!File.Exists(camera)){using(var d=new OpenFileDialog{Title="Localizar CameraCut.exe",Filter="CameraCut.exe|CameraCut.exe"}){if(d.ShowDialog()!=DialogResult.OK)return;camera=d.FileName;Directory.CreateDirectory(Home);File.WriteAllText(Path.Combine(Home,"camera-path.txt"),camera);}}
@@ -48,6 +54,12 @@ static class App {
     }return 0;
    }
    if(args.Length>0&&args[0]=="--uninstall"){Install.Uninstall();return 0;}
+   string installed=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),@"Programs\TraceDraw-BannerCut\tracedraw.exe");
+   if(args.Length==0 && File.Exists(installed)){
+    if(MessageBox.Show("Feche o TraceDraw e clique em OK para atualizar a integracao BannerCut.","Atualizar BannerCut",MessageBoxButtons.OKCancel)!=DialogResult.OK)return 0;
+    Install.Bundled(installed);
+    MessageBox.Show("Integracao atualizada. Abra TraceDraw com BannerCut no menu Iniciar.","BannerCut");return 0;
+   }
    Application.Run(new Setup());return 0;
   }catch(Exception ex){if(args.Length>0&&(args[0]=="--selftest"||args[0]=="--convert"||args[0]=="--gms")){File.WriteAllText(Path.Combine(Path.GetDirectoryName(Exe),"erro-teste.txt"),ex.ToString());return 2;}Error(ex);return 1;}
  }
@@ -83,7 +95,7 @@ class Broker:ApplicationContext {
   var c=Stamp("configurar.svg");if(c>config&&DateTime.UtcNow-c>TimeSpan.FromMilliseconds(400)){config=c;App.Config();}
   var n=Stamp("enviar.svg");if(n>send&&DateTime.UtcNow-n>TimeSpan.FromMilliseconds(400)){
    string input=Path.Combine(App.Mailbox,"enviar.svg");CutJob job;
-   try{job=Geometry.ReadSvg(input);}catch(IOException){return;}
+   try{job=Geometry.ReadSvg(input,App.DirectEnabled());}catch(IOException){return;}
    send=n;string pending=Path.Combine(App.Mailbox,"pronto.svg");File.Copy(input,pending,true);
    App.Log("Selecao preparada: "+job.Width.ToString("0.###",CultureInfo.InvariantCulture)+" x "+job.Height.ToString("0.###",CultureInfo.InvariantCulture)+" mm, "+job.Cuts+" contornos.");
    CameraLink.Send();
@@ -103,7 +115,7 @@ static class CameraLink {
  [DllImport("kernel32.dll")]static extern bool CloseHandle(IntPtr h);
  static bool? IsElevated(IntPtr window){uint pid;GetWindowThreadProcessId(window,out pid);IntPtr p=OpenProcess(0x1000,false,pid),t;int v,n;if(p==IntPtr.Zero)return null;try{if(!OpenProcessToken(p,8,out t))return null;try{return GetTokenInformation(t,20,out v,4,out n)?(bool?)(v!=0):null;}finally{CloseHandle(t);}}finally{CloseHandle(p);}}
  public static void Send(){
-  string input=Path.Combine(App.Mailbox,"pronto.svg");var job=Geometry.ReadSvg(input);
+  string input=Path.Combine(App.Mailbox,"pronto.svg");var job=Geometry.ReadSvg(input,App.DirectEnabled());
   if(!App.Elevated()){App.Session("send");return;}
   IntPtr h=FindWindow("#32770","CameraCut");
   if(h==IntPtr.Zero){string cam=App.Camera();if(!File.Exists(cam))throw new Exception("CameraCut nao encontrado. Abra as configuracoes e escolha o CameraCut.exe instalado.");Process.Start(new ProcessStartInfo(cam){UseShellExecute=true,WorkingDirectory=Path.GetDirectoryName(cam),WindowStyle=ProcessWindowStyle.Hidden});for(int i=0;i<80&&h==IntPtr.Zero;i++){Thread.Sleep(125);h=FindWindow("#32770","CameraCut");}}
@@ -112,7 +124,7 @@ static class CameraLink {
   string path=Path.Combine(Path.GetTempPath(),"skycutexport.job");if(File.Exists(path))File.Copy(path,Path.Combine(App.Mailbox,"skycutexport-anterior.job"),true);
   File.WriteAllText(path,job.Text,Encoding.ASCII);UIntPtr result;IntPtr ok=SendMessageTimeout(h,1124,UIntPtr.Zero,IntPtr.Zero,2,5000,out result);
   if(ok==IntPtr.Zero){int err=Marshal.GetLastWin32Error();if(err==5&&!App.Elevated()){App.Elevate("--deliver");return;}throw new Exception("CameraCut nao respondeu (Windows "+err+"). Confira se abriu algum aviso no CameraCut. Nao foi enviado um segundo pedido automaticamente.");}
-  ShowWindow(h,6);App.Log("Arquivo entregue ao CameraCut. Janela principal minimizada.");
+  ShowWindow(h,9);SetForegroundWindow(h);App.Log("Arquivo entregue ao CameraCut.");
  }
 }
 class IniFile {
@@ -144,7 +156,7 @@ class CutSettings:Form {
  CheckBox Check(string name,string key,int x,int y){var c=new CheckBox{Text=name,Left=x,Top=y,Width=180,Checked=ini.Get("SETUP",key,"0")=="1"};Controls.Add(c);return c;}
  NumericUpDown Number(string key,string def,int x,int y){decimal v;if(!decimal.TryParse(ini.Get("SETUP",key,def),NumberStyles.Number,CultureInfo.InvariantCulture,out v))v=decimal.Parse(def,CultureInfo.InvariantCulture);var n=new NumericUpDown{Left=x,Top=y,Width=110,DecimalPlaces=2,Increment=0.05m,Maximum=100,Minimum=0,Value=Math.Max(0,Math.Min(100,v))};Controls.Add(n);return n;}
  void Save(){try{
-  if(Process.GetProcessesByName("CameraCut").Length>0){MessageBox.Show("Feche o CameraCut antes de salvar. Os valores serao usados quando ele abrir novamente.","BannerCut");return;}
+  // Each send reads the saved flags before preparing the cut job.
   ini=new IniFile(path);
   ini.Set("SETUP","OffsetEn",offset.Checked?"1":"0");ini.Set("SETUP","CloseEn",close.Checked?"1":"0");ini.Set("SETUP","CutOutlineEn",outline.Checked?"1":"0");ini.Set("SETUP","DashedEn",dashed.Checked?"1":"0");
   ini.Set("SETUP","Offset",offValue.Value.ToString("0.00",CultureInfo.InvariantCulture));ini.Set("SETUP","Close",closeValue.Value.ToString("0.00",CultureInfo.InvariantCulture));ini.Set("SETUP","LineLen",length.Value.ToString("0.00",CultureInfo.InvariantCulture));ini.Set("SETUP","LineSpace",space.Value.ToString("0.00",CultureInfo.InvariantCulture));

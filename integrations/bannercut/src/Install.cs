@@ -71,6 +71,8 @@ static class Install {
   string desktop=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),"TraceDraw com BannerCut.lnk");Shortcut(desktop,target,"--start");
   string startup=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Startup),"BannerCut para TraceDraw.lnk");Shortcut(startup,target,"--watch");
   string startMenu=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs),"BannerCut para TraceDraw");Directory.CreateDirectory(startMenu);Shortcut(Path.Combine(startMenu,"Iniciar integracao.lnk"),target,"--watch");Shortcut(Path.Combine(startMenu,"Desativar integracao.lnk"),target,"--uninstall");
+  string editorGroup=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs),"TraceDraw com BannerCut");
+  if(File.Exists(trace)&&Directory.Exists(editorGroup))Shortcut(Path.Combine(editorGroup,"TraceDraw com BannerCut.lnk"),target,"--start");
   Process.Start(new ProcessStartInfo(target,"--watch"){UseShellExecute=true,WindowStyle=ProcessWindowStyle.Hidden});return target;
  }
  public static void Uninstall(){

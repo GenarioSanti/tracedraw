@@ -30,6 +30,15 @@ static class Tests {
   Check(job.Width==78&&job.Height==78,"marcas 78x78");Check(job.Paths.Count==1&&job.Marks.Count==5,"contornos e marcas separados");
   Check(job.Text.Contains("PU-1000 -1000;")&&job.Text.Contains("PD1000 1000;"),"quadrado 50x50 em 40 unidades/mm");
   File.WriteAllText(Path.Combine(dir,"teste.job"),job.Text);passed.Add("Quadrado 50x50, marcas 78x78, grupos SP3/SP1 e escala 40 unidades/mm.");
+  string solo="<svg width='210mm' height='297mm' viewBox='0 0 210 297'><path data-name='BC_SELECTED_1' d='M10 10L60 10L60 60L10 60Z'/></svg>";
+  File.WriteAllText(input,solo);
+  var direct=Geometry.ReadSvg(input,true);
+  Check(direct.Width==50 && direct.Height==50 && direct.Cuts==1 && !direct.Text.Contains("SP3;") && direct.Text.Contains("SP1;"),"corte direto 50x50");
+  bool needsMarks=false;try{Geometry.ReadSvg(input,false);}catch(Exception ex){needsMarks=ex.Message.Contains("sem marcas");}
+  Check(needsMarks,"modo com marcas protege selecao incompleta");
+  File.WriteAllText(input,svg);
+  Check(Geometry.ReadSvg(input,true).Text==job.Text,"marcas selecionadas preservadas nos dois modos");
+  passed.Add("Corte direto: quadrado de 50 mm sem comandos de marcas; corte registrado preservado.");
   string image="<image href='data:image/jpeg;base64,"+new string('A',17000000)+"'/>";
   File.WriteAllText(input,svg.Replace("</svg>",image+"</svg>"));Check(Geometry.ReadSvg(input).Text==job.Text,"imagem grande nao selecionada nao altera corte");
   File.WriteAllText(input,svg.Replace("</svg>",image.Replace("<image ","<image data-name='BC_SELECTED_2' ")+"</svg>"));
@@ -49,6 +58,30 @@ static class Tests {
   var curve=Geometry.Path("M0 0 C0 50 50 50 50 0 Q25 -20 0 0 Z");Check(curve.Count==1&&curve[0].Count>50,"curvas C/Q subdivididas");passed.Add("Curvas C/Q subdivididas; bloqueios para corte ausente, fora das marcas e transformacoes nao suportadas.");
   File.WriteAllText(input,"<!DOCTYPE svg [<!ENTITY x SYSTEM 'file:///does-not-exist'>]>"+svg);blocked=false;try{Geometry.ReadSvg(input);}catch{blocked=true;}Check(blocked,"DTD externo bloqueado");passed.Add("Entidades XML externas bloqueadas.");
   string iniPath=Path.Combine(dir,"CameraCut.cfg");File.WriteAllText(iniPath,"[SETUP]\r\nOffset=0.35\r\nClose=0.40\r\n[MARK]\r\nMarkSpc=14\r\n[NETWORK]\r\nIP=192.0.2.1\r\n");var ini=new IniFile(iniPath);ini.Set("SETUP","Offset","0.45");ini.Save(iniPath);var reread=new IniFile(iniPath);Check(reread.Get("MARK","MarkSpc","")=="14"&&reread.Get("NETWORK","IP","")=="192.0.2.1"&&reread.Get("SETUP","Offset","")=="0.45","INI preserva campos");Check(Directory.GetFiles(dir,"CameraCut.cfg.bannercut-*.bak").Length>0,"backup INI");passed.Add("Configuracoes preservam secoes desconhecidas e fazem backup.");
+  string modeHome=Path.Combine(Path.GetFullPath(dir),"mode-test");
+  Directory.CreateDirectory(modeHome);
+  string formerHome=App.Home;
+  try{
+   App.Home=modeHome;
+   string fakeCamera=Path.Combine(modeHome,"CameraCut.exe");
+   File.WriteAllBytes(fakeCamera,new byte[0]);
+   File.WriteAllText(Path.Combine(modeHome,"camera-path.txt"),fakeCamera);
+   string configPath=Path.Combine(modeHome,"CameraCut.cfg");
+   File.WriteAllText(configPath,"[SETUP]\r\nCutOutlineEn=1\r\nDashedEn=1\r\n[NETWORK]\r\nIP=192.0.2.1\r\n");
+   File.WriteAllText(input,solo);
+   foreach(bool marked in new[]{false,true,false}){
+    using(var dialog=new CutSettings(fakeCamera)){
+     var flags=System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance;
+     foreach(string field in new[]{"outline","dashed"})
+      ((System.Windows.Forms.CheckBox)typeof(CutSettings).GetField(field,flags).GetValue(dialog)).Checked=marked;
+     typeof(CutSettings).GetMethod("Save",flags).Invoke(dialog,null);
+    }
+    Check(App.DirectEnabled()!=marked,"configuracao aplicada no proximo pedido");
+    if(!marked)Check(!Geometry.ReadSvg(input,App.DirectEnabled()).Text.Contains("SP3;"),"quadrado direto apos salvar");
+    Check(new IniFile(configPath).Get("NETWORK","IP","")=="192.0.2.1","conexao preservada");
+   }
+   passed.Add("Janela de configuracoes: salvar e alternar direto/registrado/direto na mesma sessao.");
+  }finally{App.Home=formerHome;}
   string settings=Path.Combine(dir,"settings.json");File.WriteAllText(settings,"{\"bar_items\":{\"standard\":[\"new\",\"custom_existing\"]},\"other\":42}");Install.EditSettings(settings,true);Install.EditSettings(settings,true);var ser=new JavaScriptSerializer();var cfg=(Dictionary<string,object>)ser.DeserializeObject(File.ReadAllText(settings));var bars=(Dictionary<string,object>)cfg["bar_items"];var list=(object[])bars["standard"];Check(list.Length==6&&list.Contains("custom_existing")&&(int)cfg["other"]==42,"barra preservada sem duplicacao");Install.EditSettings(settings,false);cfg=(Dictionary<string,object>)ser.DeserializeObject(File.ReadAllText(settings));list=(object[])((Dictionary<string,object>)cfg["bar_items"])["standard"];Check(list.Length==2,"desinstalacao preserva barra");passed.Add("Registro dos quatro comandos idempotente; remocao preserva os comandos existentes.");
   string gms=Path.Combine(dir,"SSPrintBannerCut.gms");Gms.Write(gms,Install.Resource("Macro").Replace("__MAILBOX__",dir));byte[] bytes=File.ReadAllBytes(gms);Check(bytes.Length>512&&bytes[0]==0xD0&&bytes[1]==0xCF,"projeto GMS estruturado");passed.Add("Projeto GMS gerado com armazenamento composto do Windows.");
   Check(Gms.ReadSourceForTest(gms)==Install.Resource("Macro").Replace("__MAILBOX__",dir),"fonte VBA recuperado integralmente do GMS");passed.Add("Leitura independente do arquivo composto e descompressao recuperam integralmente o codigo VBA.");

@@ -78,7 +78,7 @@ static class Geometry {
   }
   return doc;
  }
- public static CutJob ReadSvg(string file){
+ public static CutJob ReadSvg(string file, bool allowDirect = false){
   XDocument doc=ReadGeometryDocument(file);
   var root=doc.Root;if(root==null||root.Name.LocalName!="svg")throw new Exception("Arquivo de transferencia invalido.");
   string width=(string)root.Attribute("width")??"",height=(string)root.Attribute("height")??"";
@@ -100,15 +100,18 @@ static class Geometry {
    paths=paths.Select(p=>p.Select(a=>new Pt((a.X-vb[0])*scale,(vb[1]+vb[3]-a.Y)*scale)).ToList()).ToList();
    if(isMark){markObjects++;job.Marks.AddRange(paths);}else {job.Cuts++;job.Paths.AddRange(paths);}
   }
-  if(markObjects!=1||job.Marks.Count!=5)throw new Exception("Selecione um conjunto completo de marcas: quatro Ls e o traco superior.");
+  bool direct = markObjects == 0 && allowDirect;
+  if(markObjects == 0 && !allowDirect)throw new Exception("Para cortar sem marcas, desmarque Cortar contornos e Corte tracejado na engrenagem e salve.");
+  if(!direct && (markObjects!=1||job.Marks.Count!=5))throw new Exception("Selecione um conjunto completo de marcas: quatro Ls e o traco superior.");
   if(job.Paths.Count==0)throw new Exception("Nao ha contornos de corte na selecao.");
-  var b=Bounds(job.Marks);var cut=Bounds(job.Paths);job.Width=b[2]-b[0];job.Height=b[3]-b[1];
-  if(job.Width<=0||job.Height<=0)throw new Exception("Marcas sem area.");
+  var cut=Bounds(job.Paths);var b=direct ? cut : Bounds(job.Marks);job.Width=b[2]-b[0];job.Height=b[3]-b[1];
+  if(!direct && (job.Width<=0||job.Height<=0))throw new Exception("Marcas sem area.");
   if(cut[0]<b[0]-0.025||cut[1]<b[1]-0.025||cut[2]>b[2]+0.025||cut[3]>b[3]+0.025)throw new Exception("Ha contornos fora das marcas. Ajuste as marcas antes de enviar.");
   if(job.Paths.Sum(p=>p.Count)+job.Marks.Sum(p=>p.Count)>200000)throw new Exception("Desenho muito complexo.");
   double cx=(b[0]+b[2])/2,cy=(b[1]+b[3])/2;var lines=new List<string>{"IN;"};
   for(int n=1;n<=8;n++)lines.Add("VS32,"+n+";");lines.Add("WU0;");for(int n=1;n<=8;n++)lines.Add("PW0.350,"+n+";");
   Action<List<List<Pt>>,int> emit=(paths,pen)=>{lines.Add("LT;");lines.Add("SP"+pen+";");foreach(var p in paths){string last="";for(int i=0;i<p.Count;i++){string xy=Math.Floor((p[i].X-cx)*40+0.5).ToString(Inv)+" "+Math.Floor((p[i].Y-cy)*40+0.5).ToString(Inv);if(i==0||last!=xy)lines.Add((i==0?"PU":"PD")+xy+";");last=xy;}}};
-  emit(job.Marks,3);emit(job.Paths,1);lines.Add("SP0;");job.Text=string.Join("\r\n",lines.ToArray());return job;
+  if(!direct)emit(job.Marks,3);
+  emit(job.Paths,1);lines.Add("SP0;");job.Text=string.Join("\r\n",lines.ToArray());return job;
  }
 }
