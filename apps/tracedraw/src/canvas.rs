@@ -463,6 +463,22 @@ pub fn printable_rect(
     )
 }
 
+/// The calibrated A4 guide used for arranging BannerCut print artwork.
+fn layout_printable_rect(app: &App, page: tracedraw_core::geometry::Rect) -> tracedraw_core::geometry::Rect {
+    let w = page.width();
+    let h = page.height();
+    let close = |a: f64, b: f64| (a - b).abs() < 0.001;
+    let (gw, gh) = if close(w, 210.0) && close(h, 297.0) {
+        (204.105, 290.925)
+    } else if close(w, 297.0) && close(h, 210.0) {
+        (290.925, 204.105)
+    } else {
+        return printable_rect(app, page);
+    };
+    let c = page.center();
+    tracedraw_core::geometry::Rect::new(c.x - gw / 2.0, c.y - gh / 2.0, c.x + gw / 2.0, c.y + gh / 2.0)
+}
+
 /// The window's background, the page with its shadow and border, bleed
 /// and printable area, the grids, and the objects rendered (`preview`
 /// moves the selection while it is dragged).
@@ -667,7 +683,7 @@ fn draw_page(app: &App, painter: &Painter, rect: ERect, preview: Option<Affine>)
     if app.show_printable_area {
         // Printable area: the page minus the printer's hard margins, as
         // the system reports them, else a typical 5 mm (#1924).
-        let r = view.rect_to_screen(printable_rect(app, shown));
+        let r = view.rect_to_screen(layout_printable_rect(app, shown));
         let dash = 4.0;
         for (a, b) in [
             (r.left_top(), r.right_top()),
@@ -3350,6 +3366,18 @@ mod tests {
     use super::*;
 
     #[test]
+    fn a4_guide_shares_the_page_center_in_both_orientations() {
+        use tracedraw_core::geometry::Rect;
+        let app = App::headless();
+        for (w, h, gw, gh) in [(210.0, 297.0, 204.105, 290.925), (297.0, 210.0, 290.925, 204.105)] {
+            let page = Rect::new(12.0, 30.0, 12.0 + w, 30.0 + h);
+            let guide = layout_printable_rect(&app, page);
+            assert_eq!(guide.center(), page.center());
+            assert!((guide.width() - gw).abs() < 1e-8 && (guide.height() - gh).abs() < 1e-8);
+        }
+    }
+
+    #[test]
     fn printable_area_is_painted_above_the_page_texture() {
         let ctx = crate::theme::ui_context();
         let mut app = App::headless();
@@ -3361,7 +3389,7 @@ mod tests {
         out.textures_delta.clear();
         let image = out.shapes.iter().rposition(|s| matches!(&s.shape, egui::Shape::Mesh(_)))
             .expect("page texture");
-        let start = app.view.rect_to_screen(printable_rect(&app, app.page_rect())).left_top();
+        let start = app.view.rect_to_screen(layout_printable_rect(&app, app.page_rect())).left_top();
         let dash = out.shapes.iter().position(|s| matches!(&s.shape,
             egui::Shape::LineSegment { points, stroke } if points[0] == start && stroke.color == Color32::BLACK))
             .expect("first printable margin dash");

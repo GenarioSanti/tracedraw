@@ -204,6 +204,7 @@ pub fn draw_bar(app: &mut App, ui: &mut Ui, bar: ItemBar, draw: fn(&mut App, &mu
         Some(v) => v.iter().map(String::as_str).collect(),
         None => bar.defaults().to_vec(),
     };
+    let credit_after = list.iter().rposition(|key| super::macro_icons::for_key(key).is_some());
     let gap = ui.spacing().item_spacing.x;
     let mut rects = Vec::with_capacity(list.len());
     for (i, id) in list.iter().enumerate() {
@@ -241,6 +242,9 @@ pub fn draw_bar(app: &mut App, ui: &mut Ui, bar: ItemBar, draw: fn(&mut App, &mu
             }
         }
         rects.push(rect);
+        if credit_after == Some(i) {
+            ui.label("Genário Artes");
+        }
     }
     let mut rect = ui.min_rect();
     if rect.width() < 40.0 {

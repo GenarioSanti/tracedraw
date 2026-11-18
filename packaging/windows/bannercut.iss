@@ -1,7 +1,7 @@
 [Setup]
 AppId={{DA75436F-83C3-4FE1-8D3B-EA5275602357}
 AppName=TraceDraw com BannerCut
-AppVersion=0.44.0-bannercut-rc7
+AppVersion=0.44.0-bannercut-rc8
 AppPublisher=SS Print
 AppPublisherURL=https://github.com/GenarioSanti/tracedraw
 DefaultDirName={localappdata}\Programs\TraceDraw-BannerCut
