@@ -138,13 +138,14 @@ mod tests {
                 for icon in [Icon::Send, Icon::Marks, Icon::Settings, Icon::Boundary] {
                     let ctx = egui::Context::default();
                     let rect = Rect::from_min_size(egui::pos2(40.0, 40.0), egui::vec2(size, size));
-                    let output = ctx.run_ui(egui::RawInput::default(), |ui| {
+                    let mut output = ctx.run_ui(egui::RawInput::default(), |ui| {
                         let painter = ui.ctx().layer_painter(egui::LayerId::new(
                             egui::Order::Foreground,
                             egui::Id::new("macro_icon_test"),
                         ));
                         draw(&painter, rect, icon, color);
                     });
+                    output.textures_delta.clear();
                     assert!(!output.shapes.is_empty());
                     for shape in output.shapes {
                         let bounds = shape.shape.visual_bounding_rect();

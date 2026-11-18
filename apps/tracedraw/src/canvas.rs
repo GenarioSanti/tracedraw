@@ -626,30 +626,6 @@ fn draw_page(app: &App, painter: &Painter, rect: ERect, preview: Option<Affine>)
             );
         }
     }
-    if app.show_printable_area {
-        // Printable area: the page minus the printer's hard margins, as
-        // the system reports them, else a typical 5 mm (#1924).
-        let r = view.rect_to_screen(printable_rect(app, shown));
-        let dash = 4.0;
-        for (a, b) in [
-            (r.left_top(), r.right_top()),
-            (r.right_top(), r.right_bottom()),
-            (r.right_bottom(), r.left_bottom()),
-            (r.left_bottom(), r.left_top()),
-        ] {
-            let len = (b - a).length();
-            let n = (len / (dash * 2.0)).floor() as usize;
-            for k in 0..n {
-                let t0 = (k as f32 * dash * 2.0) / len;
-                let t1 = ((k as f32 * dash * 2.0) + dash) / len;
-                painter.line_segment(
-                    [a + (b - a) * t0, a + (b - a) * t1],
-                    EStroke::new(1.0, Tokens::text_dim()),
-                );
-            }
-        }
-    }
-
     if app.show_grid {
         draw_grid(app, painter, rect);
     }
@@ -688,6 +664,31 @@ fn draw_page(app: &App, painter: &Painter, rect: ERect, preview: Option<Affine>)
     }
     draw_pixel_grid(app, painter, rect);
     draw_empty_clip_frames(app, painter);
+    if app.show_printable_area {
+        // Printable area: the page minus the printer's hard margins, as
+        // the system reports them, else a typical 5 mm (#1924).
+        let r = view.rect_to_screen(printable_rect(app, shown));
+        let dash = 4.0;
+        for (a, b) in [
+            (r.left_top(), r.right_top()),
+            (r.right_top(), r.right_bottom()),
+            (r.right_bottom(), r.left_bottom()),
+            (r.left_bottom(), r.left_top()),
+        ] {
+            let len = (b - a).length();
+            let n = (len / (dash * 2.0)).floor() as usize;
+            for k in 0..n {
+                let t0 = (k as f32 * dash * 2.0) / len;
+                let t1 = ((k as f32 * dash * 2.0) + dash) / len;
+                haloed_polyline(
+                    painter,
+                    &[a + (b - a) * t0, a + (b - a) * t1],
+                    false,
+                    Color32::BLACK,
+                );
+            }
+        }
+    }
 }
 
 /// The colour Mask Outside Page paints when the desktop is white or
@@ -3347,6 +3348,25 @@ pub fn draw_effect_nodes(app: &App, painter: &Painter) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn printable_area_is_painted_above_the_page_texture() {
+        let ctx = crate::theme::ui_context();
+        let mut app = App::headless();
+        app.show_printable_area = true;
+        let area = ERect::from_min_size(Pos2::ZERO, egui::vec2(900.0, 700.0));
+        let mut out = ctx.run_ui(egui::RawInput::default(), |ui| {
+            draw_page(&app, ui.painter(), area, None);
+        });
+        out.textures_delta.clear();
+        let image = out.shapes.iter().rposition(|s| matches!(&s.shape, egui::Shape::Mesh(_)))
+            .expect("page texture");
+        let start = app.view.rect_to_screen(printable_rect(&app, app.page_rect())).left_top();
+        let dash = out.shapes.iter().position(|s| matches!(&s.shape,
+            egui::Shape::LineSegment { points, stroke } if points[0] == start && stroke.color == Color32::BLACK))
+            .expect("first printable margin dash");
+        assert!(dash > image);
+    }
 
     /// #1906: View > Page > Page Border and Page Shadow are two options:
     /// each draws its part of the page's edge alone, and both are kept
